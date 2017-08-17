@@ -66,10 +66,16 @@ namespace ConsoleApplication1
                         }
                         else
                         {
+                            int atList = 1;
                             Console.WriteLine("%>  Description?");
                             Console.Write("$> ");
                             string name = Console.ReadLine();
-                            XElement newElement = Doc.Descendants(Vpath[Vpath.Count - 1]).FirstOrDefault();
+                            XElement newElement = Doc.Descendants("vfsbox").FirstOrDefault();
+                            while (atList < Vpath.Count)
+                            {
+                                newElement = Doc.Descendants(Vpath[atList]).FirstOrDefault();
+                                atList++;
+                            }
                             newElement.Add(new XElement(name));
                             newElement = Doc.Descendants(name).FirstOrDefault();
                             newElement.Add(new XAttribute("Type","Alias"));
@@ -79,8 +85,19 @@ namespace ConsoleApplication1
                             newElement.Add(new XElement("Path", inputPath.Replace(@"\", "/")));
                             Random rng = new Random();
                             newElement.Add(new XElement("Index", ConvertToBase35(rng.Next(1, 36)) + ConvertToBase35(rng.Next(1, 36)) + ConvertToBase35(rng.Next(1, 36))));
-                            XElement toSave = Doc.Descendants(Vpath[Vpath.Count - 1]).FirstOrDefault();
-                            toSave.Add(newElement);
+                            XElement toSave;
+                            if (newElement.Parent == null)
+                            {
+                                toSave = Doc.Element("vfsbox");
+                            }
+                            else
+                            {
+                                toSave = newElement.Parent;
+                            }
+                            while (toSave != Doc.Element("vfsbox"))
+                            {
+                                toSave = toSave.Parent;
+                            }
                             toSave.Save(XMLPath);
                             Program.Terminal();
                         }
